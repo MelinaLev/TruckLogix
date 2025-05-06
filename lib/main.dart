@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:trucklogix/firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
@@ -10,10 +11,8 @@ import 'screens/tickets_screen.dart';
 import 'features/tickets/screens/ticket_details_screen.dart';
 import 'features/tickets/screens/ticket_form_screen.dart';
 import 'package:intl/intl.dart';
-import 'firebase_options.dart';
 
-
-Future<void> main() async{
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
@@ -36,11 +35,11 @@ class MyApp extends StatelessWidget {
           seedColor: const Color(0xFF15385E),
           primary: const Color(0xFF15385E),
         ),
-        fontFamily: 'Poppins',
+        // Remove fontFamily if not using custom fonts
+        // fontFamily: 'Poppins',
       ),
-      initialRoute: '/',
+      home: const AuthWrapper(),
       routes: {
-        '/': (context) => const MainScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/dashboard': (context) => const DashboardScreen(),
@@ -49,7 +48,7 @@ class MyApp extends StatelessWidget {
         '/ticket/new': (context) => const TicketFormScreen(),
         '/ticket/details': (context) {
           final String? ticketId =
-              ModalRoute.of(context)?.settings.arguments as String?;
+          ModalRoute.of(context)?.settings.arguments as String?;
           if (ticketId != null) {
             return TicketDetailsScreen(ticketId: ticketId);
           }
@@ -57,9 +56,47 @@ class MyApp extends StatelessWidget {
         },
         // Placeholder routes for other features
         '/map': (context) =>
-            const PlaceholderScreen(title: 'Map', icon: Icons.map),
+        const PlaceholderScreen(title: 'Map', icon: Icons.map),
         '/profile': (context) =>
-            const PlaceholderScreen(title: 'Profile', icon: Icons.person),
+        const PlaceholderScreen(title: 'Profile', icon: Icons.person),
+      },
+    );
+  }
+}
+
+// Auth wrapper to check authentication state
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        // Connection state error handling
+        if (snapshot.hasError) {
+          return const Scaffold(
+            body: Center(
+              child: Text('Something went wrong'),
+            ),
+          );
+        }
+
+        // Loading state
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        // Return dashboard if logged in, otherwise return login
+        if (snapshot.hasData) {
+          return const DashboardScreen();
+        }
+
+        return const MainScreen();
       },
     );
   }
@@ -119,7 +156,7 @@ class PlaceholderScreen extends StatelessWidget {
                 backgroundColor: const Color(0xFF15385E),
                 foregroundColor: Colors.white,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               ),
               child: const Text('Go Back'),
             ),

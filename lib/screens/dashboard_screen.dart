@@ -1,29 +1,35 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final authService = AuthService();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         backgroundColor: const Color(0xFF15385E),
         elevation: 0,
-        automaticallyImplyLeading: true, // shows the back arrow
-        iconTheme: const IconThemeData(color: Colors.white), // 👈 makes arrow white
+        automaticallyImplyLeading: false, // Remove back arrow on dashboard
         title: const Text(
           'TruckLogix',
           style: TextStyle(
-            color: Colors.white, // 👈 makes title white
+            color: Colors.white,
             fontWeight: FontWeight.w600,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white), // 👈 white logout icon
-            onPressed: () {
-              Navigator.pushReplacementNamed(context, '/login');
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () async {
+              // Sign out and navigate to home screen
+              await authService.signOut();
+              if (context.mounted) {
+                Navigator.pushReplacementNamed(context, '/');
+              }
             },
           ),
         ],
@@ -33,26 +39,25 @@ class DashboardScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Welcome, user ",
-              style: TextStyle(
+            Text(
+              "Welcome, ${authService.currentUser?.displayName ?? 'user'}",
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 20),
-
-            // Example Feature Cards
+            // Feature Cards
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
                 children: const [
-                  FeatureCard(title: "Timecard", icon: Icons.calendar_today, routeName: '/timecard'),
-                  FeatureCard(title: "Tickets", icon: Icons.insert_drive_file, routeName: '/tickets'),
+                  FeatureCard(title: "Tickets", icon: Icons.receipt_long, routeName: '/tickets'),
                   FeatureCard(title: "Map", icon: Icons.map, routeName: '/map'),
                   FeatureCard(title: "Profile", icon: Icons.person, routeName: '/profile'),
+                  FeatureCard(title: "Timecard", icon: Icons.calendar_today, routeName: '/timecard'),
                 ],
               ),
             ),
@@ -93,7 +98,7 @@ class FeatureCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 40, color: Color(0xFF15385E)),
+            Icon(icon, size: 40, color: const Color(0xFF15385E)),
             const SizedBox(height: 10),
             Text(
               title,
