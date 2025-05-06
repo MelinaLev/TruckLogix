@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "436255186322",
+    "project_id": "trucklogix-60b08",
+    "storage_bucket": "trucklogix-60b08.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:436255186322:android:159ab7b773178564b3f54b",
+        "android_client_info": {
+          "package_name": "com.example.trucklogix"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-elMzmLhpyPKPj3RoMW6j3zwz8B_Wnhs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:436255186322:android:0b76caddf9d5c1d7b3f54b",
+        "android_client_info": {
+          "package_name": "com.melina.trucklogix"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-elMzmLhpyPKPj3RoMW6j3zwz8B_Wnhs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
