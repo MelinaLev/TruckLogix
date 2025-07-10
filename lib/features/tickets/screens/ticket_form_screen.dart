@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../models/ticket_model.dart';
 import '../services/ticket_service.dart';
 import '../widgets/signature_pad.dart';
+import '../widgets/image_picker_widget.dart';
 
 class TicketFormScreen extends StatefulWidget {
   final String? ticketId;
@@ -12,6 +13,7 @@ class TicketFormScreen extends StatefulWidget {
   @override
   State<TicketFormScreen> createState() => _TicketFormScreenState();
 }
+
 
 class _TicketFormScreenState extends State<TicketFormScreen> {
   final _formKey = GlobalKey<FormState>();
@@ -439,480 +441,412 @@ class _TicketFormScreenState extends State<TicketFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Ticket Number
-              Center(
-                child: Container(
-                  padding: const EdgeInsets.all(8.0),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(_isEditing ? 'Edit Ticket' : 'New Ticket'),
+        backgroundColor: const Color(0xFF15385E),
+        foregroundColor: Colors.white,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Ticket Number
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Text(
+                      _isEditing
+                          ? 'FIELD TICKET #${widget.ticketId}'
+                          : 'NEW FIELD TICKET',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18.0,
+                        color: _isEditing ? Colors.red : const Color(
+                            0xFF15385E),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                // Basic Information
+                const Text(
+                  'Customer Information',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+
+                TextFormField(
+                  controller: _customerController,
+                  decoration: const InputDecoration(
+                    labelText: 'Customer',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter customer name';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 8.0),
+
+                TextFormField(
+                  controller: _locationController,
+                  decoration: const InputDecoration(
+                    labelText: 'Location',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+
+                // Booking Number
+                TextFormField(
+                  controller: _bookingNumberController,
+                  decoration: const InputDecoration(
+                    labelText: 'Booking #',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                // Service Description
+                const Text(
+                  'Description of Service',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+
+                TextFormField(
+                  controller: _descriptionController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    labelText: 'Description',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                // Date and Times
+                const Text(
+                  'Date and Time',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => _selectDate(context),
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'Date',
+                            border: OutlineInputBorder(),
+                          ),
+                          child: Text(
+                            _dateFormat.format(_selectedDate),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8.0),
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => _selectTime(context, true),
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'Begin Time',
+                            border: OutlineInputBorder(),
+                          ),
+                          child: Text(
+                            _beginTime.format(context),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8.0),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => _selectTime(context, false),
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'End Time',
+                            border: OutlineInputBorder(),
+                          ),
+                          child: Text(
+                            _endTime != null
+                                ? _endTime!.format(context)
+                                : 'Select End Time',
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8.0),
+                  ],
+                ),
+                const SizedBox(height: 16.0),
+
+                // Mileage
+                const Text(
+                  'Mileage',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _beginMileageController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Beginning Mileage',
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: (value) {
+                          // Auto-calculate total mileage
+                          if (value.isNotEmpty &&
+                              _endingMileageController.text.isNotEmpty) {
+                            final begin = int.tryParse(value) ?? 0;
+                            final end = int.tryParse(
+                                _endingMileageController.text) ?? 0;
+                            if (end >= begin) {
+                              _totalMileageController.text =
+                                  (end - begin).toString();
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8.0),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _endingMileageController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Ending Mileage',
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: (value) {
+                          // Auto-calculate total mileage
+                          if (value.isNotEmpty &&
+                              _beginMileageController.text.isNotEmpty) {
+                            final begin = int.tryParse(
+                                _beginMileageController.text) ?? 0;
+                            final end = int.tryParse(value) ?? 0;
+                            if (end >= begin) {
+                              _totalMileageController.text =
+                                  (end - begin).toString();
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8.0),
+
+                TextFormField(
+                  controller: _totalMileageController,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Total Mileage',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                // Load details
+                const Text(
+                  'Load Details',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+
+                TextFormField(
+                  controller: _totalBblsController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Total BBLS',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                // Charges Section
+                const Text(
+                  'Charges',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+
+                // Truck Charge
+                _buildChargeRow(
+                    'Truck Charge',
+                    _truckChargeController,
+                    _truckChargePriceController
+                ),
+                const SizedBox(height: 8.0),
+
+                // Fresh Water
+                _buildChargeRow(
+                    'Fresh Water',
+                    _freshWaterController,
+                    _freshWaterPriceController
+                ),
+                const SizedBox(height: 8.0),
+
+                // Disposal Water
+                _buildChargeRow(
+                    'Disposal Water',
+                    _disposalWaterController,
+                    _disposalWaterPriceController
+                ),
+                const SizedBox(height: 8.0),
+
+                // Brine
+                _buildChargeRow(
+                    'Brine',
+                    _brineController,
+                    _brinePriceController
+                ),
+                const SizedBox(height: 8.0),
+
+                // Other
+                _buildChargeRow(
+                    'Other',
+                    _otherController,
+                    _otherPriceController
+                ),
+                const SizedBox(height: 24.0),
+
+                // Signature section
+                const Text(
+                  'Driver Information',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+
+                Container(
+                  padding: const EdgeInsets.all(12.0),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(5.0),
                   ),
-                  child: Text(
-                    _isEditing
-                        ? 'FIELD TICKET #${widget.ticketId}'
-                        : 'NEW FIELD TICKET',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18.0,
-                      color: _isEditing ? Colors.red : const Color(0xFF15385E),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16.0),
-
-              // Basic Information
-              const Text(
-                'Customer Information',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.0,
-                ),
-              ),
-              const SizedBox(height: 8.0),
-
-              TextFormField(
-                controller: _customerController,
-                decoration: const InputDecoration(
-                  labelText: 'Customer',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter customer name';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 8.0),
-
-              TextFormField(
-                controller: _locationController,
-                decoration: const InputDecoration(
-                  labelText: 'Location',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 8.0),
-
-              // Booking Number
-              TextFormField(
-                controller: _bookingNumberController,
-                decoration: const InputDecoration(
-                  labelText: 'Booking #',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16.0),
-
-              // Service Description
-              const Text(
-                'Description of Service',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.0,
-                ),
-              ),
-              const SizedBox(height: 8.0),
-
-              TextFormField(
-                controller: _descriptionController,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16.0),
-
-              // Date and Times
-              const Text(
-                'Date and Time',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.0,
-                ),
-              ),
-              const SizedBox(height: 8.0),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => _selectDate(context),
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Date',
-                          border: OutlineInputBorder(),
-                        ),
-                        child: Text(
-                          _dateFormat.format(_selectedDate),
-                        ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Driver Signature:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 8.0),
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => _selectTime(context, true),
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Begin Time',
-                          border: OutlineInputBorder(),
-                        ),
-                        child: Text(
-                          _beginTime.format(context),
-                        ),
+                      SignaturePad(
+                        onSignatureChanged: (points) {
+                          _driverSignaturePoints = points;
+                        },
                       ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8.0),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => _selectTime(context, false),
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'End Time',
-                          border: OutlineInputBorder(),
-                        ),
-                        child: Text(
-                          _endTime != null
-                              ? _endTime!.format(context)
-                              : 'Select End Time',
-                        ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Customer Signature:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 8.0),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(
-                        labelText: 'Type',
-                        border: OutlineInputBorder(),
+                      SignaturePad(
+                        onSignatureChanged: (points) {
+                          _customerSignaturePoints = points;
+                        },
                       ),
-                      value: _ticketType,
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'OT',
-                          child: Text('OT - DRIVE TIME'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'ST',
-                          child: Text('ST - STANDARD TIME'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'YT',
-                          child: Text('YT - YARD TIME'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'WT',
-                          child: Text('WT - WORK TIME'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          _ticketType = value;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-
-              // Mileage
-              const Text(
-                'Mileage',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.0,
-                ),
-              ),
-              const SizedBox(height: 8.0),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _beginMileageController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Beginning Mileage',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (value) {
-                        // Auto-calculate total mileage
-                        if (value.isNotEmpty &&
-                            _endingMileageController.text.isNotEmpty) {
-                          final begin = int.tryParse(value) ?? 0;
-                          final end = int.tryParse(
-                              _endingMileageController.text) ?? 0;
-                          if (end >= begin) {
-                            _totalMileageController.text =
-                                (end - begin).toString();
-                          }
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8.0),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _endingMileageController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Ending Mileage',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (value) {
-                        // Auto-calculate total mileage
-                        if (value.isNotEmpty &&
-                            _beginMileageController.text.isNotEmpty) {
-                          final begin = int.tryParse(
-                              _beginMileageController.text) ?? 0;
-                          final end = int.tryParse(value) ?? 0;
-                          if (end >= begin) {
-                            _totalMileageController.text =
-                                (end - begin).toString();
-                          }
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8.0),
-
-              TextFormField(
-                controller: _totalMileageController,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  labelText: 'Total Mileage',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16.0),
-
-              // Load details
-              const Text(
-                'Load Details',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.0,
-                ),
-              ),
-              const SizedBox(height: 8.0),
-
-              TextFormField(
-                controller: _totalBblsController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Total BBLS',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16.0),
-
-              // Charges Section
-              const Text(
-                'Charges',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.0,
-                ),
-              ),
-              const SizedBox(height: 8.0),
-
-              // OT Drive Time
-              _buildChargeRow(
-                  'OT Drive Time',
-                  _otDriveTimeController,
-                  _otDriveTimePriceController
-              ),
-              const SizedBox(height: 8.0),
-
-              // ST Drive Time
-              _buildChargeRow(
-                  'ST Drive Time',
-                  _stDriveTimeController,
-                  _stDriveTimePriceController
-              ),
-              const SizedBox(height: 8.0),
-
-              // Yard Time
-              _buildChargeRow(
-                  'Yard Time',
-                  _yardTimeController,
-                  _yardTimePriceController
-              ),
-              const SizedBox(height: 8.0),
-
-              // Wait Time
-              _buildChargeRow(
-                  'Wait Time',
-                  _waitTimeController,
-                  _waitTimePriceController
-              ),
-              const SizedBox(height: 8.0),
-
-              // Truck Charge
-              _buildChargeRow(
-                  'Truck Charge',
-                  _truckChargeController,
-                  _truckChargePriceController
-              ),
-              const SizedBox(height: 8.0),
-
-              // Fresh Water
-              _buildChargeRow(
-                  'Fresh Water',
-                  _freshWaterController,
-                  _freshWaterPriceController
-              ),
-              const SizedBox(height: 8.0),
-
-              // Disposal Water
-              _buildChargeRow(
-                  'Disposal Water',
-                  _disposalWaterController,
-                  _disposalWaterPriceController
-              ),
-              const SizedBox(height: 8.0),
-
-              // Brine
-              _buildChargeRow(
-                  'Brine',
-                  _brineController,
-                  _brinePriceController
-              ),
-              const SizedBox(height: 8.0),
-
-              // Other
-              _buildChargeRow(
-                  'Other',
-                  _otherController,
-                  _otherPriceController
-              ),
-              const SizedBox(height: 24.0),
-
-              // Signature section
-              const Text(
-                'Driver Information',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.0,
-                ),
-              ),
-              const SizedBox(height: 8.0),
-
-              Container(
-                padding: const EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(5.0),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Driver Signature:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SignaturePad(
-                      onSignatureChanged: (points) {
-                        _driverSignaturePoints = points;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Customer Signature:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SignaturePad(
-                      onSignatureChanged: (points) {
-                        _customerSignaturePoints = points;
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24.0),
-
-              // Save button
-              SizedBox(
-                width: double.infinity,
-                height: 50.0,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF15385E),
-                    foregroundColor: Colors.white,
-                  ),
-                  onPressed: _saveTicket,
-                  child: Text(
-                    _isEditing ? 'UPDATE TICKET' : 'SAVE TICKET',
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 24.0),
-            ],
+                const SizedBox(height: 24.0),
+
+                // Save button
+                SizedBox(
+                  width: double.infinity,
+                  height: 50.0,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF15385E),
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: _saveTicket,
+                    child: Text(_isEditing ? 'Update Ticket' : 'Save Ticket'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
-
-  Widget _buildChargeRow(String label,
-      TextEditingController descController,
-      TextEditingController priceController,) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4.0),
-        Row(
-          children: [
-            Expanded(
-              flex: 3,
-              child: TextFormField(
-                controller: descController,
-                decoration: const InputDecoration(
-                  labelText: 'Description/Time',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8.0),
-            Expanded(
-              flex: 2,
-              child: TextFormField(
-                controller: priceController,
-                keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true),
-                decoration: const InputDecoration(
-                  labelText: 'Price',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
   }
-}
+
+Widget _buildChargeRow(
+    String label,
+    TextEditingController timeController,
+    TextEditingController priceController,
+    ) {
+  return Row(
+    children: [
+      Expanded(
+        flex: 2,
+        child: TextFormField(
+          controller: timeController,
+          decoration: InputDecoration(
+            labelText: '$label Time',
+            border: const OutlineInputBorder(),
+          ),
+        ),
+      ),
+      const SizedBox(width: 8.0),
+      Expanded(
+        child: TextFormField(
+          controller: priceController,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(
+            labelText: 'Price',
+            border: OutlineInputBorder(),
+          ),
+        ),
+      ),
+    ],
+  );
+  }

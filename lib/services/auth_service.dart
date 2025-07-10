@@ -25,12 +25,17 @@ class AuthService {
       if (e.code == 'weak-password') {
         throw Exception('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
-        throw Exception('The account already exists for that email.');
+        throw Exception('An account already exists for that email.');
+      } else if (e.code == 'invalid-email') {
+        throw Exception('Please enter a valid email address.');
+      } else if (e.code == 'operation-not-allowed') {
+        throw Exception('Email/password accounts are not enabled.');
+      } else {
+        throw Exception('Registration failed: ${e.message}');
       }
-      return null;
     } catch (e) {
       print('Error during sign up: $e');
-      return null;
+      throw Exception('Registration failed: ${e.toString()}');
     }
   }
 
@@ -46,12 +51,17 @@ class AuthService {
       if (e.code == 'user-not-found') {
         throw Exception('No user found for that email.');
       } else if (e.code == 'wrong-password') {
-        throw Exception('Wrong password provided for that user.');
+        throw Exception('Wrong password provided.');
+      } else if (e.code == 'invalid-email') {
+        throw Exception('Please enter a valid email address.');
+      } else if (e.code == 'user-disabled') {
+        throw Exception('This account has been disabled.');
+      } else {
+        throw Exception('Login failed: ${e.message}');
       }
-      return null;
     } catch (e) {
       print('Error during sign in: $e');
-      return null;
+      throw Exception('Login failed: ${e.toString()}');
     }
   }
 
@@ -65,9 +75,12 @@ class AuthService {
     try {
       await _firebaseAuth.sendPasswordResetEmail(email: email);
       return true;
+    } on FirebaseAuthException catch (e) {
+      print('Error sending password reset email: ${e.message}');
+      throw Exception('Failed to send reset email: ${e.message}');
     } catch (e) {
       print('Error sending password reset email: $e');
-      return false;
+      throw Exception('Failed to send reset email: ${e.toString()}');
     }
   }
 
@@ -80,9 +93,12 @@ class AuthService {
         return true;
       }
       return false;
+    } on FirebaseAuthException catch (e) {
+      print('Error deleting account: ${e.message}');
+      throw Exception('Failed to delete account: ${e.message}');
     } catch (e) {
       print('Error deleting account: $e');
-      return false;
+      throw Exception('Failed to delete account: ${e.toString()}');
     }
   }
 
@@ -91,6 +107,14 @@ class AuthService {
 
   // Send email verification
   Future<void> sendEmailVerification() async {
-    await _firebaseAuth.currentUser?.sendEmailVerification();
+    try {
+      await _firebaseAuth.currentUser?.sendEmailVerification();
+    } on FirebaseAuthException catch (e) {
+      print('Error sending email verification: ${e.message}');
+      throw Exception('Failed to send verification email: ${e.message}');
+    } catch (e) {
+      print('Error sending email verification: $e');
+      throw Exception('Failed to send verification email: ${e.toString()}');
+    }
   }
 }
