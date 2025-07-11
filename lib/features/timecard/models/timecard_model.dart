@@ -1,5 +1,5 @@
 import 'package:intl/intl.dart';
-import '../../tickets/models/ticket_model.dart';
+import '../../tickets/models/ticket.dart';
 
 class TimecardEntry {
   final String ticketId;
@@ -29,15 +29,6 @@ class TimecardEntry {
       final Duration duration = ticket.endTime!.difference(ticket.beginTime!);
       totalHours = duration.inMinutes / 60.0;
 
-      // Determine regular vs overtime based on type or other factors
-      if (ticket.ticketType == 'OT') {
-        overtimeHours = totalHours;
-      } else {
-        // Assume 8 hours is standard, anything over is overtime
-        regularHours = totalHours > 8 ? 8 : totalHours;
-        overtimeHours = totalHours > 8 ? totalHours - 8 : 0;
-      }
-    }
 
     return TimecardEntry(
       ticketId: ticket.id,

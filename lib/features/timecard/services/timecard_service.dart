@@ -1,6 +1,6 @@
 import '../models/timecard_model.dart';
 import '../../tickets/services/ticket_service.dart';
-import '../../tickets/models/ticket_model.dart';
+import '../../tickets/models/ticket.dart';
 
 class TimecardService {
   // Singleton instance

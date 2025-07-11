@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../features/tickets/screens/ticket_list_screen.dart';
-import '../features/tickets/screens/ticket_form_screen.dart';
 
 class TicketsScreen extends StatefulWidget {
   const TicketsScreen({super.key});
@@ -13,7 +12,6 @@ class _TicketsScreenState extends State<TicketsScreen> {
   int _selectedIndex = 0;
   final List<Widget> _screens = [
     const TicketListScreen(), // Shows all tickets
-    const TicketFormScreen(), // Create new ticket
   ];
 
   @override

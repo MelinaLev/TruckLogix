@@ -8,8 +8,7 @@ import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/timecard_screen.dart';
 import 'screens/tickets_screen.dart';
-import 'features/tickets/screens/ticket_details_screen.dart';
-import 'features/tickets/screens/ticket_form_screen.dart';
+import 'features/tickets/screens/create_ticket_screen.dart';
 import 'package:intl/intl.dart';
 
 Future<void> main() async {
@@ -46,9 +45,11 @@ class MyApp extends StatelessWidget {
         '/timecard': (context) => const TimecardScreen(),
         '/tickets': (context) => const TicketsScreen(),
         '/ticket/new': (context) => const TicketFormScreen(),
+        '/create-ticket': (context) =>
+            const CreateTicketScreen(), // Fixed route
         '/ticket/details': (context) {
           final String? ticketId =
-          ModalRoute.of(context)?.settings.arguments as String?;
+              ModalRoute.of(context)?.settings.arguments as String?;
           if (ticketId != null) {
             return TicketDetailsScreen(ticketId: ticketId);
           }
@@ -56,9 +57,9 @@ class MyApp extends StatelessWidget {
         },
         // Placeholder routes for other features
         '/map': (context) =>
-        const PlaceholderScreen(title: 'Map', icon: Icons.map),
+            const PlaceholderScreen(title: 'Map', icon: Icons.map),
         '/profile': (context) =>
-        const PlaceholderScreen(title: 'Profile', icon: Icons.person),
+            const PlaceholderScreen(title: 'Profile', icon: Icons.person),
       },
     );
   }
@@ -156,7 +157,7 @@ class PlaceholderScreen extends StatelessWidget {
                 backgroundColor: const Color(0xFF15385E),
                 foregroundColor: Colors.white,
                 padding:
-                const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               ),
               child: const Text('Go Back'),
             ),
